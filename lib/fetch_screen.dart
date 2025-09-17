@@ -5,6 +5,7 @@ import 'package:hgocery_app/consts/contss.dart';
 import 'package:hgocery_app/consts/firebase_consts.dart';
 import 'package:hgocery_app/models/cart_model.dart';
 import 'package:hgocery_app/providers/cart_provider.dart';
+import 'package:hgocery_app/providers/wishlist_provider.dart';
 import 'package:hgocery_app/screens/btm_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -28,13 +29,19 @@ class _FetchScreenState extends State<FetchScreen> {
         listen: false,
       );
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      final wishlistProvider = Provider.of<WishlistProvider>(
+        context,
+        listen: false,
+      );
       final User? user = authInstance.currentUser;
       if (user == null) {
         await productsProvider.fetchProducts();
         cartProvider.clearLocalCart();
+        wishlistProvider.clearLocalWishlist();
       } else {
         await productsProvider.fetchProducts();
         await cartProvider.fetchCart();
+        await wishlistProvider.fetchWishlist();
       }
 
       Navigator.of(context).pushReplacement(
