@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hgocery_app/consts/contss.dart';
 import 'package:hgocery_app/consts/firebase_consts.dart';
-import 'package:hgocery_app/models/cart_model.dart';
 import 'package:hgocery_app/providers/cart_provider.dart';
+import 'package:hgocery_app/providers/orders_provider.dart';
 import 'package:hgocery_app/providers/wishlist_provider.dart';
 import 'package:hgocery_app/screens/btm_bar.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +33,7 @@ class _FetchScreenState extends State<FetchScreen> {
         context,
         listen: false,
       );
+      // final orderProvider = Provider.of<OrdersProvider>(context, listen: false);
       final User? user = authInstance.currentUser;
       if (user == null) {
         await productsProvider.fetchProducts();
@@ -42,8 +43,9 @@ class _FetchScreenState extends State<FetchScreen> {
         await productsProvider.fetchProducts();
         await cartProvider.fetchCart();
         await wishlistProvider.fetchWishlist();
+        // await orderProvider.fetchOrders();
       }
-
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (ctx) => const BottomBarScreen()),
       );

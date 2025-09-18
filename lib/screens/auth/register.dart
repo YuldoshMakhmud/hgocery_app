@@ -4,13 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:hgocery_app/fetch_screen.dart';
 import 'package:hgocery_app/screens/auth/login.dart';
 import 'package:hgocery_app/screens/btm_bar.dart';
 import 'package:hgocery_app/screens/loading_manager.dart';
 
 import '../../consts/contss.dart';
 import '../../consts/firebase_consts.dart';
+import '../../fetch_screen.dart';
 import '../../services/global_methods.dart';
 import '../../services/utils.dart';
 import '../../widgets/auth_button.dart';
@@ -53,12 +53,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _submitFormOnRegister() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    setState(() {
-      _isLoading = true;
-    });
+
     if (isValid) {
       _formKey.currentState!.save();
-
+      setState(() {
+        _isLoading = true;
+      });
       try {
         await authInstance.createUserWithEmailAndPassword(
           email: _emailTextController.text.toLowerCase().trim(),
@@ -66,6 +66,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
         final User? user = authInstance.currentUser;
         final _uid = user!.uid;
+        user.updateDisplayName(_fullNameController.text);
+        user.reload();
         await FirebaseFirestore.instance.collection('users').doc(_uid).set({
           'id': _uid,
           'name': _fullNameController.text,
@@ -103,7 +105,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Utils(context).getTheme;
-    // ignore: unused_local_variable
     Color color = Utils(context).color;
 
     return Scaffold(
@@ -126,7 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               // control: const SwiperControl(),
             ),
-            Container(color: Colors.black),
+            Container(color: Colors.black.withOpacity(0.7)),
             SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
