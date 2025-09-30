@@ -36,7 +36,7 @@ class _OrderWidgetState extends State<OrderWidget> {
     final getCurrProduct = productProvider.findProdById(ordersModel.productId);
     return ListTile(
       subtitle: Text(
-        'Paid: \$${double.parse(ordersModel.price).toStringAsFixed(2)}',
+        'Paid: \￦${double.parse(ordersModel.price).toStringAsFixed(2)}',
       ),
       onTap: () {
         GlobalMethods.navigateTo(

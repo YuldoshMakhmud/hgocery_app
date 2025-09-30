@@ -194,7 +194,7 @@ class _CartWidgetState extends State<CartWidget> {
                           ),
                           TextWidget(
                             text:
-                                '\$${(usedPrice * int.parse(_quantityTextController.text)).toStringAsFixed(2)}',
+                                '\￦${(usedPrice * int.parse(_quantityTextController.text)).toStringAsFixed(2)}',
                             color: color,
                             textSize: 18,
                             maxLines: 1,
