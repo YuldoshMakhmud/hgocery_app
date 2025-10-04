@@ -125,6 +125,14 @@ class _CartWidgetState extends State<CartWidget> {
                                   controller: _quantityTextController,
                                   keyboardType: TextInputType.number,
                                   maxLines: 1,
+                                  textAlign: TextAlign
+                                      .center, // 🔹 Matnni o‘rtaga joylash
+                                  style: const TextStyle(
+                                    fontWeight:
+                                        FontWeight.bold, // 🔹 Qalinroq matn
+                                    fontSize:
+                                        18, // (ixtiyoriy) biroz kattaroq shrift
+                                  ),
                                   decoration: const InputDecoration(
                                     focusedBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(),
@@ -136,13 +144,23 @@ class _CartWidgetState extends State<CartWidget> {
                                     ),
                                   ],
                                   onChanged: (v) {
-                                    setState(() {
-                                      if (v.isEmpty) {
-                                        _quantityTextController.text = '1';
-                                      } else {
-                                        return;
-                                      }
-                                    });
+                                    if (v.isEmpty) {
+                                      // setState ichida textController ni update qilish tavsiya etilmaydi
+                                      // Flutter warning beradi. Buning o‘rniga:
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            _quantityTextController.text = '1';
+                                            _quantityTextController.selection =
+                                                TextSelection.fromPosition(
+                                                  TextPosition(
+                                                    offset:
+                                                        _quantityTextController
+                                                            .text
+                                                            .length,
+                                                  ),
+                                                );
+                                          });
+                                    }
                                   },
                                 ),
                               ),
