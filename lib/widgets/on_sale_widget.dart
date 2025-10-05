@@ -8,6 +8,7 @@ import 'package:hgocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../consts/firebase_consts.dart';
+// ignore: unused_import
 import '../inner_screens/on_sale_screen.dart';
 import '../inner_screens/product_details.dart';
 import '../models/products_model.dart';
@@ -28,6 +29,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
   Widget build(BuildContext context) {
     final Color color = Utils(context).color;
     final productModel = Provider.of<ProductModel>(context);
+    // ignore: unused_local_variable
     final theme = Utils(context).getTheme;
     Size size = Utils(context).getScreenSize;
     final cartProvider = Provider.of<CartProvider>(context);

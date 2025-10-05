@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'package:flutter_iconly/flutter_iconly.dart';
+// ignore: unused_import
 import 'package:hgocery_app/consts/contss.dart';
 import 'package:hgocery_app/models/products_model.dart';
 import 'package:hgocery_app/providers/products_provider.dart';
@@ -119,12 +121,12 @@ class _FeedsScreenState extends State<FeedsScreen> {
                     // crossAxisSpacing: 10,
                     childAspectRatio: size.width / (size.height * 0.61),
                     children: List.generate(
-                      _searchTextController!.text.isNotEmpty
+                      _searchTextController.text.isNotEmpty
                           ? listProdcutSearch.length
                           : allProducts.length,
                       (index) {
                         return ChangeNotifierProvider.value(
-                          value: _searchTextController!.text.isNotEmpty
+                          value: _searchTextController.text.isNotEmpty
                               ? listProdcutSearch[index]
                               : allProducts[index],
                           child: const FeedsWidget(),

@@ -5,6 +5,7 @@ import 'package:hgocery_app/provider/dark_theme_provider.dart';
 import 'package:hgocery_app/providers/orders_provider.dart';
 import 'package:hgocery_app/providers/products_provider.dart';
 import 'package:hgocery_app/providers/viewed_prod_provider.dart';
+// ignore: unused_import
 import 'package:hgocery_app/screens/home_screen.dart';
 import 'package:hgocery_app/screens/viewed_recently/viewed_recently.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ import 'providers/wishlist_provider.dart';
 import 'screens/auth/forget_pass.dart';
 import 'screens/auth/login.dart';
 import 'screens/auth/register.dart';
+// ignore: unused_import
 import 'screens/btm_bar.dart';
 import 'screens/orders/orders_screen.dart';
 import 'screens/wishlist/wishlist_screen.dart';

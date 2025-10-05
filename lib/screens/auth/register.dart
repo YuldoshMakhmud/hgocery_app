@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:hgocery_app/screens/auth/login.dart';
+// ignore: unused_import
 import 'package:hgocery_app/screens/btm_bar.dart';
 import 'package:hgocery_app/screens/loading_manager.dart';
 
@@ -105,6 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Utils(context).getTheme;
+    // ignore: unused_local_variable
     Color color = Utils(context).color;
 
     return Scaffold(

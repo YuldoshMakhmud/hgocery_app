@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:hgocery_app/providers/wishlist_provider.dart';
+// ignore: unused_import
 import 'package:hgocery_app/screens/cart/cart_widget.dart';
 import 'package:hgocery_app/widgets/empty_screen.dart';
 import 'package:hgocery_app/widgets/text_widget.dart';
@@ -18,6 +19,7 @@ class WishlistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color color = Utils(context).color;
+    // ignore: unused_local_variable
     Size size = Utils(context).getScreenSize;
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     final wishlistItemsList = wishlistProvider.getWishlistItems.values

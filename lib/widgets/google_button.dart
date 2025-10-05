@@ -6,6 +6,7 @@ import 'package:hgocery_app/consts/firebase_consts.dart';
 import 'package:hgocery_app/fetch_screen.dart';
 import 'package:hgocery_app/widgets/text_widget.dart';
 
+// ignore: unused_import
 import '../screens/btm_bar.dart';
 import '../services/global_methods.dart';
 

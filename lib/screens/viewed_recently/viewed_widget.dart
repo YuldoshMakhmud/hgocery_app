@@ -2,11 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+// ignore: unused_import
 import 'package:hgocery_app/inner_screens/product_details.dart';
 import 'package:hgocery_app/models/viewed_model.dart';
 import 'package:hgocery_app/services/global_methods.dart';
 import 'package:provider/provider.dart';
 import '../../consts/firebase_consts.dart';
+// ignore: unused_import
 import '../../models/wishlist_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/products_provider.dart';
@@ -60,12 +62,12 @@ class _ViewedRecentlyWidgetState extends State<ViewedRecentlyWidget> {
                 TextWidget(
                   text: getCurrProduct.title,
                   color: color,
-                  textSize: 24,
+                  textSize: 22,
                   isTitle: true,
                 ),
                 const SizedBox(height: 12),
                 TextWidget(
-                  text: '\$${usedPrice.toStringAsFixed(2)}',
+                  text: '\₩${usedPrice.toStringAsFixed(2)}',
                   color: color,
                   textSize: 20,
                   isTitle: false,

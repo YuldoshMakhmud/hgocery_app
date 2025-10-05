@@ -9,10 +9,13 @@ import 'package:hgocery_app/widgets/heart_btn.dart';
 import 'package:hgocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
 
+// ignore: unused_import
 import '../../inner_screens/on_sale_screen.dart';
+// ignore: unused_import
 import '../../models/products_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/wishlist_provider.dart';
+// ignore: unused_import
 import '../../services/global_methods.dart';
 import '../../services/utils.dart';
 
