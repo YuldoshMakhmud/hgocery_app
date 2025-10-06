@@ -39,9 +39,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: size.height * 0.33,
                 child: Swiper(
                   itemBuilder: (BuildContext context, int index) {
-                    return Image.asset(
-                      Constss.offerImages[index],
-                      fit: BoxFit.fill,
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 6.0,
+                      ),
+                      child: Card(
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          Constss.offerImages[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     );
                   },
                   autoplay: true,
@@ -56,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // control: const SwiperControl(color: Colors.black),
                 ),
               ),
+
               const SizedBox(height: 6),
               TextButton(
                 onPressed: () {

@@ -9,25 +9,21 @@ import 'package:hgocery_app/widgets/heart_btn.dart';
 import 'package:hgocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
 
-// ignore: unused_import
-import '../../inner_screens/on_sale_screen.dart';
-// ignore: unused_import
-import '../../models/products_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/wishlist_provider.dart';
-// ignore: unused_import
-import '../../services/global_methods.dart';
 import '../../services/utils.dart';
 
 class CartWidget extends StatefulWidget {
   const CartWidget({Key? key, required this.q}) : super(key: key);
   final int q;
+
   @override
   State<CartWidget> createState() => _CartWidgetState();
 }
 
 class _CartWidgetState extends State<CartWidget> {
   final _quantityTextController = TextEditingController();
+
   @override
   void initState() {
     _quantityTextController.text = widget.q.toString();
@@ -55,6 +51,7 @@ class _CartWidgetState extends State<CartWidget> {
     bool? _isInWishlist = wishlistProvider.getWishlistItems.containsKey(
       getCurrProduct.id,
     );
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -75,6 +72,7 @@ class _CartWidgetState extends State<CartWidget> {
                 ),
                 child: Row(
                   children: [
+                    // Product Image
                     Container(
                       height: size.width * 0.25,
                       width: size.width * 0.25,
@@ -86,26 +84,96 @@ class _CartWidgetState extends State<CartWidget> {
                         boxFit: BoxFit.fill,
                       ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextWidget(
-                          text: getCurrProduct.title,
-                          color: color,
-                          textSize: 20,
-                          isTitle: true,
-                        ),
-                        const SizedBox(height: 16.0),
-                        SizedBox(
-                          width: size.width * 0.3,
-                          child: Row(
-                            children: [
-                              _quantityController(
-                                fct: () {
-                                  if (_quantityTextController.text == '1') {
-                                    return;
-                                  } else {
-                                    cartProvider.reduceQuantityByOne(
+                    const SizedBox(width: 8),
+                    // Product Info & Quantity
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextWidget(
+                            text: getCurrProduct.title,
+                            color: color,
+                            textSize: 18,
+                            isTitle: true,
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: size.width * 0.35,
+                            child: Row(
+                              children: [
+                                // Minus Button
+                                _quantityController(
+                                  fct: () async {
+                                    int currentQty = int.parse(
+                                      _quantityTextController.text,
+                                    );
+                                    if (currentQty > 1) {
+                                      cartProvider.reduceQuantityByOne(
+                                        cartModel.productId,
+                                      );
+                                      setState(() {
+                                        _quantityTextController.text =
+                                            (currentQty - 1).toString();
+                                      });
+                                    } else {
+                                      // Quantity 1 bo'lsa, itemni o'chirish
+                                      await cartProvider.removeOneItem(
+                                        cartId: cartModel.id,
+                                        productId: cartModel.productId,
+                                        quantity: currentQty,
+                                      );
+                                    }
+                                  },
+                                  color: Colors.red,
+                                  icon: CupertinoIcons.minus,
+                                ),
+                                Flexible(
+                                  flex: 1,
+                                  child: TextField(
+                                    controller: _quantityTextController,
+                                    keyboardType: TextInputType.number,
+                                    maxLines: 1,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                    decoration: const InputDecoration(
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(),
+                                      ),
+                                    ),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp('[0-9]'),
+                                      ),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v.isEmpty) {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                              _quantityTextController.text =
+                                                  '1';
+                                              _quantityTextController
+                                                      .selection =
+                                                  TextSelection.fromPosition(
+                                                    TextPosition(
+                                                      offset:
+                                                          _quantityTextController
+                                                              .text
+                                                              .length,
+                                                    ),
+                                                  );
+                                            });
+                                      }
+                                    },
+                                  ),
+                                ),
+                                // Plus Button
+                                _quantityController(
+                                  fct: () {
+                                    cartProvider.increaseQuantityByOne(
                                       cartModel.productId,
                                     );
                                     setState(() {
@@ -113,83 +181,22 @@ class _CartWidgetState extends State<CartWidget> {
                                           (int.parse(
                                                     _quantityTextController
                                                         .text,
-                                                  ) -
+                                                  ) +
                                                   1)
                                               .toString();
                                     });
-                                  }
-                                },
-                                color: Colors.red,
-                                icon: CupertinoIcons.minus,
-                              ),
-                              Flexible(
-                                flex: 1,
-                                child: TextField(
-                                  controller: _quantityTextController,
-                                  keyboardType: TextInputType.number,
-                                  maxLines: 1,
-                                  textAlign: TextAlign
-                                      .center, // 🔹 Matnni o‘rtaga joylash
-                                  style: const TextStyle(
-                                    fontWeight:
-                                        FontWeight.bold, // 🔹 Qalinroq matn
-                                    fontSize:
-                                        18, // (ixtiyoriy) biroz kattaroq shrift
-                                  ),
-                                  decoration: const InputDecoration(
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(),
-                                    ),
-                                  ),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                      RegExp('[0-9]'),
-                                    ),
-                                  ],
-                                  onChanged: (v) {
-                                    if (v.isEmpty) {
-                                      // setState ichida textController ni update qilish tavsiya etilmaydi
-                                      // Flutter warning beradi. Buning o‘rniga:
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                            _quantityTextController.text = '1';
-                                            _quantityTextController.selection =
-                                                TextSelection.fromPosition(
-                                                  TextPosition(
-                                                    offset:
-                                                        _quantityTextController
-                                                            .text
-                                                            .length,
-                                                  ),
-                                                );
-                                          });
-                                    }
                                   },
+                                  color: Colors.green,
+                                  icon: CupertinoIcons.plus,
                                 ),
-                              ),
-                              _quantityController(
-                                fct: () {
-                                  cartProvider.increaseQuantityByOne(
-                                    cartModel.productId,
-                                  );
-                                  setState(() {
-                                    _quantityTextController.text =
-                                        (int.parse(
-                                                  _quantityTextController.text,
-                                                ) +
-                                                1)
-                                            .toString();
-                                  });
-                                },
-                                color: Colors.green,
-                                icon: CupertinoIcons.plus,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const Spacer(),
+                    // Delete & Wishlist & Price
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                       child: Column(
@@ -213,9 +220,10 @@ class _CartWidgetState extends State<CartWidget> {
                             productId: getCurrProduct.id,
                             isInWishlist: _isInWishlist,
                           ),
+                          const SizedBox(height: 5),
                           TextWidget(
                             text:
-                                '\￦${(usedPrice * int.parse(_quantityTextController.text)).toStringAsFixed(2)}',
+                                '\$${(usedPrice * int.parse(_quantityTextController.text)).toStringAsFixed(2)}',
                             color: color,
                             textSize: 18,
                             maxLines: 1,
@@ -248,9 +256,7 @@ class _CartWidgetState extends State<CartWidget> {
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              fct();
-            },
+            onTap: () => fct(),
             child: Padding(
               padding: const EdgeInsets.all(6.0),
               child: Icon(icon, color: Colors.white, size: 20),
