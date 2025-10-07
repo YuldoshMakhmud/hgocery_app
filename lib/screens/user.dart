@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:hgocery_app/consts/firebase_consts.dart';
@@ -12,7 +11,7 @@ import 'package:hgocery_app/screens/wishlist/wishlist_screen.dart';
 import 'package:hgocery_app/services/global_methods.dart';
 import 'package:hgocery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../provider/dark_theme_provider.dart';
 import 'auth/login.dart';
 
@@ -24,20 +23,20 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  final TextEditingController _addressTextController = TextEditingController(
-    text: "",
-  );
-  @override
-  void dispose() {
-    _addressTextController.dispose();
-    super.dispose();
-  }
-
+  final TextEditingController _addressTextController = TextEditingController();
   String? _email;
   String? _name;
   String? address;
   bool _isLoading = false;
   final User? user = authInstance.currentUser;
+
+  final Uri _privacyUrl = Uri.parse(
+    'https://sites.google.com/view/tut-privacy-policy/home',
+  );
+  final Uri _termsUrl = Uri.parse(
+    'https://sites.google.com/view/tut-terms-of-service/home',
+  );
+
   @override
   void initState() {
     getUserData();
@@ -45,197 +44,208 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   Future<void> getUserData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    if (user == null) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+    setState(() => _isLoading = true);
+    if (user == null) return;
     try {
-      String _uid = user!.uid;
-
-      final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+      final userDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(_uid)
+          .doc(user!.uid)
           .get();
-      // ignore: unnecessary_null_comparison
-      if (userDoc == null) {
-        return;
-      } else {
+      if (userDoc.exists) {
         _email = userDoc.get('email');
         _name = userDoc.get('name');
         address = userDoc.get('shipping-address');
-        _addressTextController.text = userDoc.get('shipping-address');
+        _addressTextController.text = address ?? '';
       }
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
-      GlobalMethods.errorDialog(subtitle: '$error', context: context);
+    } catch (e) {
+      GlobalMethods.errorDialog(subtitle: '$e', context: context);
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _launchUrl(Uri url) async {
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Linkni ochib bo‘lmadi')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeState = Provider.of<DarkThemeProvider>(context);
-    final Color color = themeState.getDarkTheme ? Colors.white : Colors.black;
+    final theme = Provider.of<DarkThemeProvider>(context);
+    final color = theme.getDarkTheme ? Colors.white : Colors.black;
+
     return Scaffold(
-      body: LoadingManager(
-        isLoading: _isLoading,
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: theme.getDarkTheme
+                ? [Colors.green, Colors.white]
+                : [
+                    const Color.fromARGB(
+                      255,
+                      247,
+                      247,
+                      247,
+                    ), // pastel light green
+                    const Color(0xFFFFFFFF), // white
+                  ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: LoadingManager(
+          isLoading: _isLoading,
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 15),
-                  RichText(
-                    text: TextSpan(
-                      text: 'Hi,  ',
-                      style: const TextStyle(
-                        color: Colors.cyan,
-                        fontSize: 27,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: _name == null ? 'user' : _name,
-                          style: TextStyle(
-                            color: color,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w600,
+                  // Profil qismi
+                  Center(
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 45,
+                          backgroundColor: const Color(
+                            0xFF2E7D32,
+                          ), // deep halal green
+                          child: const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 50,
                           ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              print('My name is pressed');
-                            },
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          _name ?? 'Foydalanuvchi',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1B5E20),
+                          ),
+                        ),
+                        Text(
+                          _email ?? 'Email mavjud emas',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: color.withOpacity(0.7),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  TextWidget(
-                    text: _email == null ? 'Email' : _email!,
-                    color: color,
-                    textSize: 18,
-                    // isTitle: true,
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(thickness: 2),
-                  const SizedBox(height: 20),
-                  _listTiles(
-                    title: 'Address 2',
-                    subtitle: address,
+                  const SizedBox(height: 25),
+
+                  // menyu bo‘limlari
+                  _buildTile(
                     icon: IconlyLight.profile,
-                    onPressed: () async {
-                      await _showAddressDialog();
-                    },
-                    color: color,
+                    title: 'Address',
+                    subtitle: address ?? 'Manzil kiritilmagan',
+                    onTap: _showAddressDialog,
+                    color: const Color(0xFF1B5E20),
                   ),
-                  _listTiles(
-                    title: 'Orders',
+                  _buildTile(
                     icon: IconlyLight.bag,
-                    onPressed: () {
-                      GlobalMethods.navigateTo(
-                        ctx: context,
-                        routeName: OrdersScreen.routeName,
-                      );
-                    },
-                    color: color,
+                    title: 'Orders',
+                    onTap: () => GlobalMethods.navigateTo(
+                      ctx: context,
+                      routeName: OrdersScreen.routeName,
+                    ),
+                    color: const Color(0xFF2E7D32),
                   ),
-                  _listTiles(
-                    title: 'Wishlist',
+                  _buildTile(
                     icon: IconlyLight.heart,
-                    onPressed: () {
-                      GlobalMethods.navigateTo(
-                        ctx: context,
-                        routeName: WishlistScreen.routeName,
-                      );
-                    },
-                    color: color,
+                    title: 'Wishlist',
+                    onTap: () => GlobalMethods.navigateTo(
+                      ctx: context,
+                      routeName: WishlistScreen.routeName,
+                    ),
+                    color: const Color(0xFF388E3C),
                   ),
-                  _listTiles(
-                    title: 'Viewed',
+                  _buildTile(
                     icon: IconlyLight.show,
-                    onPressed: () {
-                      GlobalMethods.navigateTo(
-                        ctx: context,
-                        routeName: ViewedRecentlyScreen.routeName,
-                      );
-                    },
-                    color: color,
+                    title: 'Viewed Recently',
+                    onTap: () => GlobalMethods.navigateTo(
+                      ctx: context,
+                      routeName: ViewedRecentlyScreen.routeName,
+                    ),
+                    color: const Color(0xFF4CAF50),
                   ),
-                  _listTiles(
-                    title: 'Forget password',
+                  _buildTile(
                     icon: IconlyLight.unlock,
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const ForgetPasswordScreen(),
-                        ),
-                      );
-                    },
-                    color: color,
+                    title: 'Forget Password',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ForgetPasswordScreen(),
+                      ),
+                    ),
+                    color: const Color(0xFF66BB6A),
                   ),
+
+                  // light/dark
                   SwitchListTile(
-                    title: TextWidget(
-                      text: themeState.getDarkTheme
-                          ? 'Dark mode'
-                          : 'Light mode',
-                      color: color,
-                      textSize: 18,
-                      // isTitle: true,
+                    title: Text(
+                      theme.getDarkTheme ? 'Dark Mode' : 'Light Mode',
+                      style: TextStyle(fontSize: 18, color: color),
                     ),
                     secondary: Icon(
-                      themeState.getDarkTheme
+                      theme.getDarkTheme
                           ? Icons.dark_mode_outlined
                           : Icons.light_mode_outlined,
+                      color: const Color(0xFF1B5E20),
                     ),
-                    onChanged: (bool value) {
-                      setState(() {
-                        themeState.setDarkTheme = value;
-                      });
-                    },
-                    value: themeState.getDarkTheme,
+                    value: theme.getDarkTheme,
+                    onChanged: (v) => setState(() {
+                      theme.setDarkTheme = v;
+                    }),
                   ),
-                  _listTiles(
-                    title: user == null ? 'Login' : 'Logout',
+
+                  const Divider(thickness: 1),
+                  _buildTile(
+                    icon: Icons.privacy_tip_outlined,
+                    title: 'Privacy Policy',
+                    onTap: () => _launchUrl(_privacyUrl),
+                    color: const Color(0xFF2E7D32),
+                  ),
+                  _buildTile(
+                    icon: Icons.description_outlined,
+                    title: 'Terms of Service',
+                    onTap: () => _launchUrl(_termsUrl),
+                    color: const Color(0xFF2E7D32),
+                  ),
+                  const Divider(thickness: 1),
+
+                  _buildTile(
                     icon: user == null ? IconlyLight.login : IconlyLight.logout,
-                    onPressed: () {
+                    title: user == null ? 'Login' : 'Logout',
+                    onTap: () {
                       if (user == null) {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const LoginScreen(),
                           ),
                         );
-                        return;
+                      } else {
+                        GlobalMethods.warningDialog(
+                          title: 'Sign out',
+                          subtitle: 'Do you wanna sign out?',
+                          fct: () async {
+                            await authInstance.signOut();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
+                          },
+                          context: context,
+                        );
                       }
-                      GlobalMethods.warningDialog(
-                        title: 'Sign out',
-                        subtitle: 'Do you wanna sign out?',
-                        fct: () async {
-                          await authInstance.signOut();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
-                          );
-                        },
-                        context: context,
-                      );
                     },
-                    color: color,
+                    color: const Color(0xFF1B5E20),
                   ),
-                  // listTileAsRow(),
                 ],
               ),
             ),
@@ -245,97 +255,74 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
+  Widget _buildTile({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    required Function onTap,
+    required Color color,
+  }) {
+    return Card(
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 3,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.15),
+          child: Icon(icon, color: color),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+        subtitle: subtitle != null && subtitle.isNotEmpty
+            ? Text(subtitle)
+            : null,
+        trailing: Icon(IconlyLight.arrowRight2, color: color),
+        onTap: () => onTap(),
+      ),
+    );
+  }
+
   Future<void> _showAddressDialog() async {
     await showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Update'),
-          content: TextField(
-            // onChanged: (value) {
-            //   print('_addressTextController.text ${_addressTextController.text}');
-            // },
-            controller: _addressTextController,
-            maxLines: 5,
-            decoration: const InputDecoration(hintText: "Your address"),
+      builder: (_) => AlertDialog(
+        title: const Text('Update Address'),
+        content: TextField(
+          controller: _addressTextController,
+          maxLines: 3,
+          decoration: const InputDecoration(hintText: 'Your address'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              if (user == null) return;
+              try {
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .update({'shipping-address': _addressTextController.text});
+                setState(() {
+                  address = _addressTextController.text;
+                });
+                Navigator.pop(context);
+              } catch (e) {
+                GlobalMethods.errorDialog(
+                  subtitle: e.toString(),
+                  context: context,
+                );
+              }
+            },
+            child: const Text('Save'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                String _uid = user!.uid;
-                try {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(_uid)
-                      .update({
-                        'shipping-address': _addressTextController.text,
-                      });
-
-                  Navigator.pop(context);
-                  setState(() {
-                    address = _addressTextController.text;
-                  });
-                } catch (err) {
-                  GlobalMethods.errorDialog(
-                    subtitle: err.toString(),
-                    context: context,
-                  );
-                }
-              },
-              child: const Text('Update'),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
-
-  Widget _listTiles({
-    required String title,
-    String? subtitle,
-    required IconData icon,
-    required Function onPressed,
-    required Color color,
-  }) {
-    return ListTile(
-      title: TextWidget(
-        text: title,
-        color: color,
-        textSize: 22,
-        // isTitle: true,
-      ),
-      subtitle: TextWidget(
-        text: subtitle == null ? "" : subtitle,
-        color: color,
-        textSize: 18,
-      ),
-      leading: Icon(icon),
-      trailing: const Icon(IconlyLight.arrowRight2),
-      onTap: () {
-        onPressed();
-      },
-    );
-  }
-
-  // // Alternative code for the listTile.
-  //   Widget listTileAsRow() {
-  //     return Padding(
-  //       padding: const EdgeInsets.all(8.0),
-  //       child: Row(
-  //         children: <Widget>[
-  //           const Icon(Icons.settings),
-  //           const SizedBox(width: 10),
-  //           Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: const [
-  //               Text('Title'),
-  //               Text('Subtitle'),
-  //             ],
-  //           ),
-  //           const Spacer(),
-  //           const Icon(Icons.chevron_right)
-  //         ],
-  //       ),
-  //     );
-  //   }
 }
