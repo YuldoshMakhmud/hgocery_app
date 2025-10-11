@@ -22,13 +22,18 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color color = Utils(context).color;
-    // ignore: unused_local_variable
     Size size = Utils(context).getScreenSize;
     final cartProvider = Provider.of<CartProvider>(context);
     final cartItemsList = cartProvider.getCartItems.values
         .toList()
         .reversed
         .toList();
+
+    // 🌿 Ranglar (UserScreen bilan bir xil)
+    const Color halalGreenDark = Color(0xFF1B5E20);
+    const Color halalGreen = Color(0xFF2E7D32);
+    const Color halalLight = Color(0xFFA5D6A7);
+
     return cartItemsList.isEmpty
         ? const EmptyScreen(
             title: 'Your cart is empty',
@@ -39,11 +44,12 @@ class CartScreen extends StatelessWidget {
         : Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
-              elevation: 0,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              elevation: 2,
+              backgroundColor:
+                  halalGreen, // 🔹 AppBar rangini yashilga o‘zgartirildi
               title: TextWidget(
                 text: 'Cart (${cartItemsList.length})',
-                color: color,
+                color: Colors.white, // oq matn
                 isTitle: true,
                 textSize: 22,
               ),
@@ -60,25 +66,40 @@ class CartScreen extends StatelessWidget {
                       context: context,
                     );
                   },
-                  icon: Icon(IconlyBroken.delete, color: color),
-                ),
-              ],
-            ),
-            body: Column(
-              children: [
-                _checkout(ctx: context),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: cartItemsList.length,
-                    itemBuilder: (ctx, index) {
-                      return ChangeNotifierProvider.value(
-                        value: cartItemsList[index],
-                        child: CartWidget(q: cartItemsList[index].quantity),
-                      );
-                    },
+                  icon: const Icon(
+                    IconlyBroken.delete,
+                    color: Colors.white, // oq ikon
                   ),
                 ),
               ],
+            ),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromARGB(255, 247, 247, 247),
+                    Color(0xFFFFFFFF),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: Column(
+                children: [
+                  _checkout(ctx: context),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: cartItemsList.length,
+                      itemBuilder: (ctx, index) {
+                        return ChangeNotifierProvider.value(
+                          value: cartItemsList[index],
+                          child: CartWidget(q: cartItemsList[index].quantity),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
   }
@@ -98,16 +119,32 @@ class CartScreen extends StatelessWidget {
               : getCurrProduct.price) *
           value.quantity;
     });
-    return SizedBox(
+
+    const Color halalGreen = Color(0xFF2E7D32);
+
+    return Container(
       width: double.infinity,
       height: size.height * 0.1,
-      // color: ,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF1F8E9),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            offset: Offset(0, -2),
+            blurRadius: 6,
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Row(
           children: [
             Material(
-              color: Colors.green,
+              color: halalGreen,
               borderRadius: BorderRadius.circular(10),
               child: InkWell(
                 borderRadius: BorderRadius.circular(10),
@@ -149,13 +186,15 @@ class CartScreen extends StatelessWidget {
                         msg: "Your order has been placed",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.CENTER,
+                        backgroundColor: halalGreen,
+                        textColor: Colors.white,
                       );
                     } catch (error) {
                       GlobalMethods.errorDialog(
                         subtitle: error.toString(),
                         context: ctx,
                       );
-                    } finally {}
+                    }
                   });
                 },
                 child: Padding(
@@ -171,8 +210,8 @@ class CartScreen extends StatelessWidget {
             const Spacer(),
             FittedBox(
               child: TextWidget(
-                text: 'Total: \￦${total.toStringAsFixed(2)}',
-                color: color,
+                text: 'Total: ₩${total.toStringAsFixed(2)}',
+                color: halalGreen,
                 textSize: 18,
                 isTitle: true,
               ),

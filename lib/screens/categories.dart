@@ -7,16 +7,17 @@ import 'package:hgocery_app/widgets/text_widget.dart';
 class CategoriesScreen extends StatelessWidget {
   CategoriesScreen({super.key});
 
-  List<Color> gridColors = [
-    const Color(0xff53B175),
-    const Color(0xffF8A44C),
-    const Color(0xffF7A593),
-    const Color(0xffD3B0E0),
-    const Color(0xffFDE598),
-    const Color(0xffB7DFF5),
+  // 🌿 Yashilga yo‘naltirilgan rang palitrasi
+  final List<Color> gridColors = const [
+    Color(0xFF81C784), // Light Green
+    Color(0xFF4CAF50), // Green
+    Color(0xFFA5D6A7), // Mint Green
+    Color(0xFFC8E6C9), // Soft Pastel Green
+    Color(0xFFB2DFDB), // Aqua Mint
+    Color(0xFFDCEDC8), // Light Lime
   ];
 
-  List<Map<String, dynamic>> catInfo = [
+  final List<Map<String, dynamic>> catInfo = const [
     {'imgPath': 'assets/images/cat/fruits.png', 'catText': 'Fruits'},
     {'imgPath': 'assets/images/cat/veg.png', 'catText': 'Vegetables'},
     {'imgPath': 'assets/images/cat/Spinach.png', 'catText': 'Fish'},
@@ -24,35 +25,50 @@ class CategoriesScreen extends StatelessWidget {
     {'imgPath': 'assets/images/cat/spices.png', 'catText': 'Savr'},
     {'imgPath': 'assets/images/cat/grains.png', 'catText': 'Grains'},
   ];
+
   @override
   Widget build(BuildContext context) {
     final utils = Utils(context);
-    Color color = utils.color;
+    final Color color = utils.color;
+
+    const Color halalGreenDark = Color(0xFF1B5E20);
+    const Color halalGreen = Color(0xFF2E7D32);
+
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 2,
+        centerTitle: true,
+        backgroundColor: halalGreen, // 🔹 AppBar yashil
         title: TextWidget(
           text: 'Categories',
-          color: color,
+          color: Colors.white, // 🔹 oq matn
           textSize: 24,
           isTitle: true,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          childAspectRatio: 240 / 250,
-          crossAxisSpacing: 10, // Vertical spacing
-          mainAxisSpacing: 10, // Horizontal spacing
-          children: List.generate(6, (index) {
-            return CategoriesWidget(
-              catText: catInfo[index]['catText'],
-              imgPath: catInfo[index]['imgPath'],
-              passedColor: gridColors[index],
-            );
-          }),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color.fromARGB(255, 247, 247, 247), Color(0xFFFFFFFF)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            childAspectRatio: 240 / 250,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            children: List.generate(catInfo.length, (index) {
+              return CategoriesWidget(
+                catText: catInfo[index]['catText'],
+                imgPath: catInfo[index]['imgPath'],
+                passedColor: gridColors[index],
+              );
+            }),
+          ),
         ),
       ),
     );

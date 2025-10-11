@@ -24,6 +24,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
     {'page': const CartScreen(), 'title': 'Cart Screen'},
     {'page': const UserScreen(), 'title': 'user Screen'},
   ];
+
   void _selectedPage(int index) {
     setState(() {
       _selectedIndex = index;
@@ -33,21 +34,30 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
   @override
   Widget build(BuildContext context) {
     final themeState = Provider.of<DarkThemeProvider>(context);
-
     bool _isDark = themeState.getDarkTheme;
+
+    // 🎨 UserScreen bilan bir xil ranglar
+    const Color halalGreenDark = Color(0xFF1B5E20);
+    const Color halalGreen = Color(0xFF2E7D32);
+    const Color halalLight = Color(0xFF4CAF50);
+
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text( _pages[_selectedIndex]['title']),
-      // ),
       body: _pages[_selectedIndex]['page'],
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: _isDark ? Theme.of(context).cardColor : Colors.white,
+        backgroundColor: _isDark
+            ? halalGreen
+            : const Color.fromARGB(255, 247, 247, 247),
         type: BottomNavigationBarType.fixed,
         showSelectedLabels: false,
         showUnselectedLabels: false,
         currentIndex: _selectedIndex,
-        unselectedItemColor: _isDark ? Colors.white10 : Colors.black12,
-        selectedItemColor: _isDark ? Colors.lightBlue.shade200 : Colors.black87,
+
+        // 🔹 Rangsxema moslashtirildi
+        unselectedItemColor: _isDark
+            ? Colors.white70
+            : halalGreenDark.withOpacity(0.6),
+        selectedItemColor: _isDark ? Colors.white : halalLight,
+
         onTap: _selectedPage,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
