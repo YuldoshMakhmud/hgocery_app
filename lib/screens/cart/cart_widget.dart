@@ -221,9 +221,10 @@ class _CartWidgetState extends State<CartWidget> {
                             isInWishlist: _isInWishlist,
                           ),
                           const SizedBox(height: 5),
+                          // ✅ Narxni faqat butun qilib chiqaramiz
                           TextWidget(
                             text:
-                                '\$${(usedPrice * int.parse(_quantityTextController.text)).toStringAsFixed(2)}',
+                                '₩${(usedPrice * int.parse(_quantityTextController.text)).round()}',
                             color: color,
                             textSize: 18,
                             maxLines: 1,
