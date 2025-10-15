@@ -20,41 +20,60 @@ class _OrderWidgetState extends State<OrderWidget> {
   late String orderDateToShow;
 
   @override
-  void didChangeDependencies() {
-    final ordersModel = Provider.of<OrderModel>(context);
-    var orderDate = ordersModel.orderDate.toDate();
-    orderDateToShow = '${orderDate.day}/${orderDate.month}/${orderDate.year}';
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final ordersModel = Provider.of<OrderModel>(context);
     final Color color = Utils(context).color;
     Size size = Utils(context).getScreenSize;
     final productProvider = Provider.of<ProductsProvider>(context);
+
+    // Debug
+    print("OrderWidget: ${ordersModel.orderId}");
+    print("ProductId: ${ordersModel.productId}");
+    print("ImageUrl: ${ordersModel.imageUrl}");
+
     final getCurrProduct = productProvider.findProdById(ordersModel.productId);
+
+    // Agar product topilmasa, orderdagi imageUrl ni ishlating
+    if (getCurrProduct == null) {
+      return ListTile(
+        leading: ordersModel.imageUrl.isNotEmpty
+            ? FancyShimmerImage(
+                width: size.width * 0.2,
+                imageUrl: ordersModel.imageUrl, // ✅ Orderdagi imageUrl
+                boxFit: BoxFit.cover,
+              )
+            : Container(
+                width: size.width * 0.2,
+                height: size.width * 0.2,
+                color: Colors.grey[300],
+                child: const Icon(Icons.shopping_bag, color: Colors.grey),
+              ),
+        title: TextWidget(
+          text: 'Mahsulot: ${ordersModel.productId}',
+          color: color,
+          textSize: 16,
+        ),
+        subtitle: Text('Narx: \$${ordersModel.price}'),
+        trailing: TextWidget(text: orderDateToShow, color: color, textSize: 14),
+      );
+    }
+
     return ListTile(
-      subtitle: Text(
-        'Paid: \￦${double.parse(ordersModel.price).toStringAsFixed(2)}',
-      ),
+      subtitle: Text('Narx: \$${ordersModel.price}'),
       onTap: () {
-        GlobalMethods.navigateTo(
-          ctx: context,
-          routeName: ProductDetails.routeName,
-        );
+        // ProductDetails ga o'tish
       },
       leading: FancyShimmerImage(
         width: size.width * 0.2,
         imageUrl: getCurrProduct.imageUrl,
-        boxFit: BoxFit.fill,
+        boxFit: BoxFit.cover,
       ),
       title: TextWidget(
         text: '${getCurrProduct.title}  x${ordersModel.quantity}',
         color: color,
-        textSize: 18,
+        textSize: 16,
       ),
-      trailing: TextWidget(text: orderDateToShow, color: color, textSize: 18),
+      trailing: TextWidget(text: orderDateToShow, color: color, textSize: 14),
     );
   }
 }
